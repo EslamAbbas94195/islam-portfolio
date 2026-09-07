@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eslam Abbas — IT Systems Engineer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #241526;
+    --bg-2: #2E1B31;
+    --panel: #2A1930;
+    --gold: #D8A657;
+    --gold-dim: rgba(216,166,87,0.25);
+    --text: #EDE6E9;
+    --muted: #A9909F;
+    --line: rgba(216,166,87,0.28);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{ height:100%; overflow-x:hidden; }
+  body{
+    background: radial-gradient(ellipse at 50% 35%, var(--bg-2) 0%, var(--bg) 65%);
+    color: var(--text);
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  a{ color: var(--gold); }
+  ::selection{ background: var(--gold); color: var(--bg); }
+  :focus-visible{ outline: 2px solid var(--gold); outline-offset:3px; }
+  img{ max-width:100%; display:block; }
+  button{ font-family:inherit; }
+
+  .wallpaper{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image: url('profile.jpg');
+    background-size: cover; background-position: center 20%;
+    filter: blur(38px) saturate(70%) brightness(0.45);
+    transform: scale(1.15);
+    opacity: 0.55;
+  }
+  .wallpaper::after{
+    content:''; position:absolute; inset:0;
+    background: radial-gradient(ellipse at 50% 35%, rgba(46,27,49,0.55) 0%, var(--bg) 72%);
+  }
+  .stars{ position:fixed; inset:0; z-index:0; pointer-events:none; opacity:0.5;
+    background-image: radial-gradient(1.5px 1.5px at 20% 30%, var(--gold-dim), transparent),
+                       radial-gradient(1.5px 1.5px at 70% 60%, var(--gold-dim), transparent),
+                       radial-gradient(1px 1px at 85% 20%, var(--gold-dim), transparent),
+                       radial-gradient(1px 1px at 40% 80%, var(--gold-dim), transparent),
+                       radial-gradient(1.5px 1.5px at 60% 10%, var(--gold-dim), transparent),
+                       radial-gradient(1px 1px at 10% 65%, var(--gold-dim), transparent);
+  }
+
+  .topbar{
+    position:relative; z-index:2; display:flex; justify-content:space-between; align-items:center;
+    padding: 24px 30px; font-size:13.5px; color: var(--muted);
+  }
+  .topbar b{ color: var(--text); }
+
+  .orbit-wrap{
+    position:relative; z-index:1; width:100%; max-width: 620px; aspect-ratio:1/1; margin: 10px auto 0;
+  }
+  .node{
+    position:absolute; transform: translate(-50%,-50%);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+    cursor:pointer; border:none; background:none; color:inherit;
+  }
+  .node-circle{
+    width:74px; height:74px; border-radius:50%; background: var(--panel);
+    border: 1.5px solid var(--line); display:flex; align-items:center; justify-content:center;
+    transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+    animation: float 6s ease-in-out infinite;
+  }
+  .node-circle svg{ width:28px; height:28px; stroke: var(--gold); fill:none; stroke-width:1.6; }
+  .node:hover .node-circle{ transform: scale(1.08); border-color: var(--gold); box-shadow: 0 0 26px var(--gold-dim); }
+  .node:active .node-circle{ transform: scale(0.96); }
+  .node-label{ margin-top:10px; font-size:13px; color: var(--muted); white-space:nowrap; }
+  .node:hover .node-label{ color: var(--gold); }
+
+  .node.center{ z-index:2; }
+  .node.center .node-circle{ width:132px; height:132px; background: var(--bg-2); border-color: var(--gold); cursor:default; animation:none; overflow:hidden; padding:0; }
+  .node.center:hover .node-circle{ transform:none; box-shadow:none; }
+  .node.center .node-circle img{ width:100%; height:100%; object-fit:cover; object-position: center 20%; }
+  .node.center .node-label{ color: var(--gold); font-size: 13px; margin-top:12px; }
+
+  @keyframes float{ 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-6px); } }
+
+  svg.lines{ position:absolute; inset:0; width:100%; height:100%; z-index:0; }
+  svg.lines line{ stroke: var(--line); stroke-width:1; stroke-dasharray: 3 5; }
+
+  .hero-copy{ position:relative; z-index:1; text-align:center; padding: 26px 24px 10px; }
+  .hero-copy p{ color: var(--muted); font-size:15px; max-width:52ch; margin: 0 auto; }
+  .hint{ text-align:center; color: var(--muted); font-size:12.5px; margin: 6px 0 40px; opacity:0.75; }
+
+  .node-list{ display:none; }
+  @media (max-width: 620px){
+    .orbit-wrap{ display:none; }
+    .node-list{
+      display:flex; flex-direction:column; gap:12px; max-width:420px; margin: 20px auto 40px; padding: 0 24px;
+      position:relative; z-index:1;
+    }
+    .node-list button{
+      display:flex; align-items:center; gap:14px; padding:16px 18px;
+      background: var(--panel); border:1px solid var(--line); border-radius:14px; color: var(--text);
+      cursor:pointer; text-align:left; font-size:15px;
+    }
+    .node-list button svg{ width:22px; height:22px; stroke: var(--gold); fill:none; stroke-width:1.6; flex:none; }
+    .node-list button:active{ transform: scale(0.98); }
+  }
+
+  .panel-overlay{
+    position:fixed; inset:0; z-index:50; display:none;
+    background: rgba(20,12,22,0.6);
+  }
+  .panel-overlay.open{ display:block; }
+  .panel{
+    position:fixed; left:0; right:0; bottom:0; z-index:51;
+    max-height: 82vh; overflow-y:auto;
+    background: var(--bg-2); border-top: 1px solid var(--gold);
+    border-radius: 22px 22px 0 0;
+    padding: 28px 26px 40px;
+    transform: translateY(100%); transition: transform .38s cubic-bezier(.2,.8,.2,1);
+  }
+  .panel-overlay.open .panel{ transform: translateY(0); }
+  .panel-inner{ max-width: 640px; margin:0 auto; position:relative; }
+  .panel-handle{ width:40px; height:4px; background: var(--line); border-radius:2px; margin: 0 auto 20px; }
+  .panel-title{ font-size:22px; font-weight:600; color: var(--text); }
+  .panel-close{
+    position:absolute; top:-6px; right:0; background:none; border:none; color: var(--muted);
+    font-size:26px; cursor:pointer; line-height:1;
+  }
+  .panel-close:hover{ color: var(--gold); }
+
+  .p-entry{ margin-top: 22px; padding-top:20px; border-top:1px solid var(--line); }
+  .p-entry:first-of-type{ margin-top:24px; }
+  .p-entry h4{ font-size:16.5px; color: var(--gold); font-weight:600; }
+  .p-entry p{ color: var(--muted); font-size:14px; margin-top:6px; line-height:1.6; }
+  .p-entry .impact{ color: var(--text); }
+  .p-entry .stack{ font-size:12.5px; color: var(--muted); margin-top:8px; opacity:0.85; }
+  .watch-btn{
+    margin-top:12px; display:inline-flex; align-items:center; gap:7px;
+    background:none; border:1px solid var(--gold); color: var(--gold); border-radius:20px;
+    padding:7px 15px; font-size:13px; cursor:pointer;
+  }
+  .watch-btn:hover{ background: var(--gold); color: var(--bg); }
+
+  .exp-row{ padding: 14px 0; border-top:1px solid var(--line); }
+  .exp-row:first-child{ border-top:none; padding-top:20px; }
+  .exp-dates{ font-size:12.5px; color: var(--gold); }
+  .exp-role{ font-weight:600; margin-top:4px; }
+  .exp-role span{ color: var(--muted); font-weight:400; }
+  .exp-desc{ color: var(--muted); font-size:13.5px; margin-top:4px; }
+
+  .skill-grid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap:18px; margin-top:22px; }
+  .skill-grid dt{ color: var(--gold); font-size:12.5px; margin-bottom:5px; }
+  .skill-grid dd{ color: var(--muted); font-size:14px; }
+
+  .contact-list{ margin-top: 22px; display:flex; flex-direction:column; gap:12px; }
+  .contact-list a{
+    display:flex; align-items:center; gap:12px; padding:14px 16px;
+    background: var(--panel); border:1px solid var(--line); border-radius:12px; color: var(--text); font-size:14.5px;
+  }
+  .contact-list a:hover{ border-color: var(--gold); }
+  .contact-list svg{ width:18px; height:18px; stroke: var(--gold); fill:none; stroke-width:1.6; flex:none; }
+
+  .video-modal-overlay{
+    display:none; position:fixed; inset:0; background: rgba(10,6,11,0.9);
+    z-index: 100; align-items:center; justify-content:center; padding: 24px;
+  }
+  .video-modal-overlay.open{ display:flex; }
+  .video-modal{ width:100%; max-width: 800px; background: var(--bg-2); border:1px solid var(--gold); border-radius:14px; overflow:hidden; }
+  .video-modal-head{ display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-bottom:1px solid var(--line); font-size:14px; }
+  .video-modal-close{ background:none; border:none; color: var(--muted); font-size:22px; cursor:pointer; }
+  .video-modal-body{ aspect-ratio:16/9; background:#000; }
+  .video-modal-body iframe{ width:100%; height:100%; border:0; }
+  .video-modal-body .soon{ width:100%; height:100%; display:flex; align-items:center; justify-content:center; color: var(--muted); font-size:14px; }
+
+  .footer-note{ position:relative; z-index:1; text-align:center; padding: 10px 24px 40px; color: var(--muted); font-size:12.5px; }
+
+  @media (prefers-reduced-motion: reduce){
+    .node-circle{ animation:none; }
+    .panel{ transition:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wallpaper"></div>
+<div class="stars"></div>
+
+<div class="topbar">
+  <span><b>Eslam Abbas</b> — IT Systems Engineer</span>
+  <span>Cairo, Egypt</span>
+</div>
+
+<div class="hero-copy">
+  <p>I run enterprise IT infrastructure day to day, and build the tools that quietly automate the rest. Tap a node to explore.</p>
+</div>
+
+<div class="orbit-wrap" id="orbit-wrap">
+  <svg class="lines" id="lines"></svg>
+
+  <button class="node center" style="left:50%; top:50%;" data-panel="none" tabindex="-1">
+    <div class="node-circle"><img src="profile.jpg" alt="Eslam Abbas"></div>
+    <div class="node-label">Eslam Abbas</div>
+  </button>
+
+  <button class="node" style="left:50%; top:8%;" data-panel="projects">
+    <div class="node-circle"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 20h8"/></svg></div>
+    <div class="node-label">Projects</div>
+  </button>
+
+  <button class="node" style="left:88%; top:34%;" data-panel="experience">
+    <div class="node-circle"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+    <div class="node-label">Experience</div>
+  </button>
+
+  <button class="node" style="left:70%; top:88%;" data-panel="skills">
+    <div class="node-circle"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h13"/></svg></div>
+    <div class="node-label">Skills</div>
+  </button>
+
+  <button class="node" style="left:30%; top:88%;" data-panel="contact">
+    <div class="node-circle"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="m4 5 8 7 8-7"/></svg></div>
+    <div class="node-label">Contact</div>
+  </button>
+
+  <button class="node" style="left:12%; top:34%;" data-panel="cv">
+    <div class="node-circle"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v3h16v-3"/></svg></div>
+    <div class="node-label">Résumé</div>
+  </button>
+</div>
+
+<div class="node-list">
+  <button data-panel="projects"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 20h8"/></svg> Projects</button>
+  <button data-panel="experience"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg> Experience</button>
+  <button data-panel="skills"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h13"/></svg> Skills</button>
+  <button data-panel="contact"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="m4 5 8 7 8-7"/></svg> Contact</button>
+  <button data-panel="cv"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v3h16v-3"/></svg> Résumé</button>
+</div>
+
+<div class="hint">Tap a node — or scroll down on mobile</div>
+<div class="footer-note">© Eslam Abbas · built as a living map, not a page</div>
+
+<div class="panel-overlay" id="panel-overlay">
+  <div class="panel" id="panel">
+    <div class="panel-inner">
+      <button class="panel-close" onclick="closePanel()">&times;</button>
+      <div class="panel-handle"></div>
+      <div id="panel-body"></div>
+    </div>
+  </div>
+</div>
+
+<div class="video-modal-overlay" id="video-modal-overlay">
+  <div class="video-modal">
+    <div class="video-modal-head">
+      <span id="video-modal-title"></span>
+      <button class="video-modal-close" onclick="closeVideoModal()">&times;</button>
+    </div>
+    <div class="video-modal-body" id="video-modal-body"></div>
+  </div>
+</div>
+
+<script>
+  function drawLines(){
+    const wrap = document.getElementById('orbit-wrap');
+    const svg = document.getElementById('lines');
+    if(!wrap || wrap.offsetWidth === 0) return;
+    const rect = wrap.getBoundingClientRect();
+    const center = { x: rect.width/2, y: rect.height/2 };
+    svg.innerHTML = '';
+    document.querySelectorAll('.node:not(.center)').forEach(function(n){
+      const nr = n.getBoundingClientRect();
+      const x = nr.left - rect.left + nr.width/2;
+      const y = nr.top - rect.top + nr.height/2;
+      const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+      line.setAttribute('x1', center.x); line.setAttribute('y1', center.y);
+      line.setAttribute('x2', x); line.setAttribute('y2', y);
+      svg.appendChild(line);
+    });
+  }
+  window.addEventListener('resize', drawLines);
+  window.addEventListener('load', drawLines);
+  setTimeout(drawLines, 50);
+
+  const projectVideos = {
+    fingerprint: "E1HY2pmcCdQ",
+    tracker: "dznGJttPyUM",
+    dvrnvr: "AFu2GS5dqYU",
+    hardware: "EyXus4Ru3BU",
+  };
+  const projectNames = {
+    fingerprint: "Fingerprint Device Sync Platform",
+    tracker: "IT Assets & Ticketing Tracker",
+    dvrnvr: "DVR/NVR Time Sync Tool",
+    hardware: "Hardware Health & Inventory Automation",
+  };
+
+  const panels = {
+    projects: function(){
+      return '<div class="panel-title">Systems I\'ve built</div>' +
+        proj('fingerprint','Fingerprint Device Sync Platform','Remote fingerprint-template transfer across every branch, from one dashboard.','Every new hire needed a physical enrollment visit to their branch\'s fingerprint device. I built a Flask-based platform that manages every ZKTeco device from a single dashboard and transfers templates remotely, <span class="impact">eliminating on-site enrollment visits company-wide.</span>','Python · Flask · ZKTeco SDK · Active Directory') +
+        proj('tracker','IT Assets & Ticketing Tracker','A central record for hardware, licenses, and every support ticket.','IT requests arrived as scattered emails with no history tied to the asset or user. I built a tracker with automatic email-to-ticket classification and Snipe-IT integration, <span class="impact">centralizing every request and asset record in one place.</span>','Python · Flask · Snipe-IT API · Active Directory') +
+        proj('dvrnvr','DVR/NVR Time Sync Tool','One click, and every recorder\'s clock agrees.','Each recorder\'s clock had to be corrected by hand, one device at a time. I built a tool using the Hikvision ISAPI to sync every device\'s clock in a single action, <span class="impact">replacing per-device manual configuration.</span>','Python · Hikvision ISAPI · REST') +
+        proj('hardware','Hardware Health & Inventory Automation','A domain-wide scan that turns guesswork into a decision.','Deciding which machines needed a new drive or more memory relied on guesswork. I wrote a PowerShell script that scans every domain-joined machine for disk health and RAM specs, <span class="impact">giving the team data instead of guesswork.</span>','PowerShell · CIM/WMI · Active Directory');
+    },
+    experience: function(){
+      return '<div class="panel-title">Where I\'ve worked</div>' +
+        exp('Jan 2026 — Present','IT System Engineer','IMTENAN Group','Windows Server, Active Directory, VMware ESXi, and the systems above, built in-house.') +
+        exp('Mar 2022 — Jan 2026','IT System & Network Engineer','Fathallah Beit El Gomla','10+ branches, Sophos VPN, 150+ tickets resolved monthly.') +
+        exp('Mar 2021 — Mar 2022','IT Specialist','Carrefour Egypt','On-site support for POS systems and store network connectivity.') +
+        exp('Feb 2020 — Mar 2021','IT Support','Military Service','Day-to-day IT support for 100+ users in a structured environment.');
+    },
+    skills: function(){
+      return '<div class="panel-title">Stack &amp; certifications</div>' +
+        '<dl class="skill-grid">' +
+        '<div><dt>Systems</dt><dd>Windows Server, Active Directory, VMware ESXi</dd></div>' +
+        '<div><dt>Network</dt><dd>FortiGate, Sophos VPN, Managed Switches</dd></div>' +
+        '<div><dt>Automation</dt><dd>Python, Flask, PowerShell, REST APIs</dd></div>' +
+        '<div><dt>Certifications</dt><dd>CCNA, MCSA, CompTIA A+/N+</dd></div>' +
+        '</dl>';
+    },
+    contact: function(){
+      return '<div class="panel-title">Let\'s talk infrastructure</div>' +
+        '<div class="contact-list">' +
+        '<a href="mailto:eslam.abbas.jobs@gmail.com"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="m4 5 8 7 8-7"/></svg> eslam.abbas.jobs@gmail.com</a>' +
+        '<a href="tel:+201004802080"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/></svg> +20 100 480 2080</a>' +
+        '<a href="https://linkedin.com/in/eslam-abbas" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg> linkedin.com/in/eslam-abbas</a>' +
+        '</div>';
+    },
+    cv: function(){
+      return '<div class="panel-title">Download my résumé</div>' +
+        '<p style="color:var(--muted); margin-top:12px; font-size:14.5px;">A one-page PDF with everything above, formatted for hiring managers and ATS systems.</p>' +
+        '<a href="Eslam_Abbas_CV.pdf" download class="watch-btn" style="margin-top:18px;">↓ Download PDF</a>';
+    },
+  };
+
+  function proj(key,title,sub,body,stack){
+    return '<div class="p-entry"><h4>'+title+'</h4><p>'+sub+'</p><p>'+body+'</p><p class="stack">'+stack+'</p>' +
+      '<button class="watch-btn" onclick="openVideoModal(\''+key+'\')">▶ Watch demo</button></div>';
+  }
+  function exp(dates,role,org,desc){
+    return '<div class="exp-row"><div class="exp-dates">'+dates+'</div><div class="exp-role">'+role+' <span>— '+org+'</span></div><div class="exp-desc">'+desc+'</div></div>';
+  }
+
+  function openPanel(key){
+    if(key === 'none' || !panels[key]) return;
+    document.getElementById('panel-body').innerHTML = panels[key]();
+    document.getElementById('panel-overlay').classList.add('open');
+  }
+  function closePanel(){
+    document.getElementById('panel-overlay').classList.remove('open');
+  }
+  document.getElementById('panel-overlay').addEventListener('click', function(e){ if(e.target===this) closePanel(); });
+
+  document.querySelectorAll('[data-panel]').forEach(function(btn){
+    btn.addEventListener('click', function(){ openPanel(btn.getAttribute('data-panel')); });
+  });
+
+  function openVideoModal(key){
+    const title = projectNames[key];
+    const overlay = document.getElementById('video-modal-overlay');
+    const body = document.getElementById('video-modal-body');
+    document.getElementById('video-modal-title').textContent = title;
+    const id = projectVideos[key];
+    if(id){
+      body.innerHTML = '<iframe src="https://www.youtube.com/embed/'+id+'?autoplay=1" title="'+title+'" allow="autoplay; encrypted-media" allowfullscreen></iframe>';
+    } else {
+      body.innerHTML = '<div class="soon">Demo video coming soon</div>';
+    }
+    overlay.classList.add('open');
+  }
+  function closeVideoModal(){
+    document.getElementById('video-modal-overlay').classList.remove('open');
+    document.getElementById('video-modal-body').innerHTML = '';
+  }
+  document.getElementById('video-modal-overlay').addEventListener('click', function(e){ if(e.target===this) closeVideoModal(); });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){ closeVideoModal(); closePanel(); }
+  });
+</script>
+
+</body>
+</html>
